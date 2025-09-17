@@ -333,27 +333,36 @@ final_summary_df <- data.frame(
 write_csv(final_summary_df, "output/final_export/final_summary_statistics.csv")
 message("Final summary statistics saved")
 
-# --- Copy Key Visualizations ---
-message("Copying key visualizations...")
+# --- Copy Visualizations Tree ---
+message("Copying visualization outputs...")
 
-# List of key plots to copy
-key_plots <- c(
-  "output/visualization/comparison_plots/intensity_weighted_averages/IWA_comparison_AuNP_vs_P25.pdf",
-  "output/visualization/stacked_plots/common_vs_unique_formulas/formula_changes_stacked_patterns.pdf",
-  "output/visualization/stacked_plots/measurement_comparison/formula_changes_by_measurement.pdf"
-)
-
-# Create plots directory in final export
+# Ensure plots root exists
 if (!dir.exists("output/final_export/plots")) {
   dir.create("output/final_export/plots", recursive = TRUE)
 }
 
-# Copy plots
-for (plot_path in key_plots) {
-  if (file.exists(plot_path)) {
-    plot_name <- basename(plot_path)
-    file.copy(plot_path, paste0("output/final_export/plots/", plot_name), overwrite = TRUE)
-    message(paste("Copied", plot_name))
+# Directories to copy recursively (if present)
+viz_dirs <- c(
+  "output/visualization/comparison_plots",
+  "output/visualization/stacked_plots",
+  "output/visualization/reproducibility",
+  "output/visualization/van_krevelen"
+)
+
+for (src_dir in viz_dirs) {
+  if (dir.exists(src_dir)) {
+    dest_dir <- file.path("output/final_export/plots", basename(src_dir))
+    if (dir.exists(dest_dir)) {
+      unlink(dest_dir, recursive = TRUE, force = TRUE)
+    }
+    ok <- file.copy(from = src_dir, to = "output/final_export/plots", recursive = TRUE)
+    if (isTRUE(ok)) {
+      message(paste("Copied directory:", src_dir, "->", dest_dir))
+    } else {
+      warning(paste("Failed to copy directory:", src_dir))
+    }
+  } else {
+    message(paste("Source directory not found (skipping):", src_dir))
   }
 }
 
@@ -365,7 +374,7 @@ readme_content <- paste0(
   "This directory contains the complete results from the nanoparticle SRFA ratio analysis.\n\n",
   "## Directory Structure\n\n",
   "- `data/`: All analysis datasets and results\n",
-  "- `plots/`: Key visualizations and figures\n",
+  "- `plots/`: Visualizations and figures copied from visualization output\n",
   "- `reports/`: Analysis reports and documentation\n\n",
   "## Key Files\n\n",
   "### Core Datasets\n",
@@ -379,7 +388,7 @@ readme_content <- paste0(
   "- `srfa_analysis_summary.csv`: SRFA coverage analysis\n",
   "- `IWA_summary.csv`: Intensity-weighted averages summary\n",
   "- `data_dictionary.csv`: Column descriptions and data types\n\n",
-  "### Comparison Analysis\n",
+  "### Comparison Analysis (Data)\n",
   "- `summary_common.csv`: Common formula summary by ratio group\n",
   "- `summary_SRFA.csv`: SRFA comparison by ratio group\n",
   "- `summary_SRFA_measurement.csv`: SRFA comparison by individual measurement\n",
@@ -387,6 +396,13 @@ readme_content <- paste0(
   "### Reproducibility Data\n",
   "- `reproducibility_thresholds.csv`: Reproducibility thresholds by group\n",
   "- `grouped_formulas.csv`: Aggregated formulas across replicates\n\n",
+  "### Visualization Outputs\n",
+  "- `plots/comparison_plots/intensity_weighted_averages/`: IWA comparison (AuNP vs P25)\n",
+  "- `plots/comparison_plots/normalization_effect/`: Normalization effect (before vs after)\n",
+  "- `plots/stacked_plots/common_vs_unique_formulas/`: Common vs unique stacked\n",
+  "- `plots/stacked_plots/measurement_comparison/`: Stacked by measurement\n",
+  "- `plots/reproducibility/`: Reproducibility violin plots (log10 RIdiff, %RIdiff)\n",
+  "- `plots/van_krevelen/`: Van Krevelen variants (SRFA comparison, ΔRI, unique, clean_bp_RI, avg_MFs_bp, avg_MFs_RI, rep_MFs)\n\n",
   "## Analysis Pipeline\n\n",
   "1. **Data Preparation** (`1. data_prep.R`): Load, clean, and process molecular formula data\n",
   "2. **Comparison Analysis** (`2. comparison_analysis.R`): Compare AuNP and P25 nanoparticles\n",

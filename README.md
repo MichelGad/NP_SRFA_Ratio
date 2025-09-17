@@ -55,10 +55,23 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 - Purpose: Create Van Krevelen diagrams, stacked bar patterns, and measurement-comparison plots; export publication-ready figures.
 - Inputs: Outputs from Comparison Analysis
 - Outputs (to `output/visualization/`):
-  - `van_krevelen/` (e.g., `SRFA_comparison/`, `delta_RI_comparison/`, `unique_molecular_formulas/`)
-  - `comparison_plots/intensity_weighted_averages/IWA_comparison_AuNP_vs_P25.pdf`
-  - `stacked_plots/common_vs_unique_formulas/formula_changes_stacked_patterns.pdf`
-  - `stacked_plots/measurement_comparison/formula_changes_by_measurement.pdf`
+  - `van_krevelen/`
+    - `SRFA_comparison/`
+    - `delta_RI_comparison/`
+    - `unique_molecular_formulas/`
+    - `clean_bp_RI/`
+    - `avg_MFs_bp/`
+    - `avg_MFs_RI/`
+    - `rep_MFs/`
+  - `comparison_plots/`
+    - `intensity_weighted_averages/IWA_comparison_AuNP_vs_P25.pdf`
+    - `normalization_effect/normalization_effect_0to1_scale.pdf`
+  - `stacked_plots/`
+    - `common_vs_unique_formulas/formula_changes_stacked_patterns.pdf`
+    - `measurement_comparison/formula_changes_by_measurement.pdf`
+  - `reproducibility/`
+    - `reproducibility_logRIdiff.pdf`
+    - `reproducibility_pctRIdiff.pdf`
 
 #### 4) Export Results
 
@@ -67,7 +80,7 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 - Inputs: All prior outputs
 - Outputs (to `output/final_export/`):
   - `data/` complete tables (processed, grouped, IWAs, summaries, dictionary)
-  - `plots/` key figures
+  - `plots/` visualization folders copied from `output/visualization/` (full tree)
   - `reports/analysis_report.txt`
   - `analysis_summary.csv`, `final_summary_statistics.csv`, `README.md`
 
@@ -163,8 +176,10 @@ output/
 │   └── unique_P25_formulas.csv
 ├── visualization/
 │   ├── comparison_plots/
-│   │   └── intensity_weighted_averages/
-│   │       └── IWA_comparison_AuNP_vs_P25.pdf
+│   │   ├── intensity_weighted_averages/
+│   │   │   └── IWA_comparison_AuNP_vs_P25.pdf
+│   │   └── normalization_effect/
+│   │       └── normalization_effect_0to1_scale.pdf
 │   ├── stacked_plots/
 │   │   ├── common_vs_unique_formulas/
 │   │   │   └── formula_changes_stacked_patterns.pdf
@@ -173,7 +188,14 @@ output/
 │   └── van_krevelen/
 │       ├── SRFA_comparison/
 │       ├── delta_RI_comparison/
-│       └── unique_molecular_formulas/
+│       ├── unique_molecular_formulas/
+│       ├── clean_bp_RI/
+│       ├── avg_MFs_bp/
+│       ├── avg_MFs_RI/
+│       └── rep_MFs/
+│   ├── reproducibility/
+│   │   ├── reproducibility_logRIdiff.pdf
+│   │   └── reproducibility_pctRIdiff.pdf
 ├── logs/
 │   └── <RUN_ID>/
 │       ├── 1.__data_prep.log
@@ -201,9 +223,10 @@ output/
     │   └── summary_SRFA_measurement.csv
     ├── final_summary_statistics.csv
     ├── plots/
-    │   ├── formula_changes_by_measurement.pdf
-    │   ├── formula_changes_stacked_patterns.pdf
-    │   └── IWA_comparison_AuNP_vs_P25.pdf
+    │   ├── comparison_plots/
+    │   ├── stacked_plots/
+    │   ├── reproducibility/
+    │   └── van_krevelen/
     ├── README.md
     └── reports/
         └── analysis_report.txt

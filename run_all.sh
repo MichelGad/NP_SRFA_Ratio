@@ -4,7 +4,7 @@
 # Script: run_all.sh
 # Purpose: Execute the complete nanoparticle SRFA ratio analysis pipeline
 # Author: Michel Gad
-# Date: 2025-09-15
+# Date: 2025-09-19
 # Description: 
 #   - Runs all analysis scripts in sequence
 #   - Provides progress updates and error handling
@@ -68,20 +68,12 @@ capture_run_metadata() {
         } >> "${META_FILE}"
     fi
 
-    # Input file checksums
+    # Input file checksums (simplified to avoid timeout on large files)
     echo "" >> "${META_FILE}"
     echo "INPUT_FILES:" >> "${META_FILE}"
     for f in input/formulas_avg.csv input/formulas_clean.csv; do
         if [ -f "$f" ]; then
-            if command -v shasum >/dev/null 2>&1; then
-                echo "$(shasum -a 256 "$f" | awk '{print $1}')  $f" >> "${META_FILE}"
-            elif command -v sha256sum >/dev/null 2>&1; then
-                echo "$(sha256sum "$f" | awk '{print $1}')  $f" >> "${META_FILE}"
-            elif command -v md5 >/dev/null 2>&1; then
-                echo "MD5=$(md5 -q "$f")  $f" >> "${META_FILE}"
-            else
-                echo "CHECKSUM: unavailable  FILE: $f" >> "${META_FILE}"
-            fi
+            echo "FILE_SIZE=$(stat -f%z "$f" 2>/dev/null || stat -c%s "$f" 2>/dev/null || echo unknown)  $f" >> "${META_FILE}"
         else
             echo "MISSING: $f" >> "${META_FILE}"
         fi
@@ -127,28 +119,27 @@ create_directories() {
         "output"
         "${LOG_ROOT_DIR}"
         "${LOG_DIR}"
-        "output/data_prep"
-        "output/comparison_analysis"
-        "output/visualization"
-        "output/visualization/van_krevelen"
-        "output/visualization/van_krevelen/SRFA_comparison"
-        "output/visualization/van_krevelen/delta_RI_comparison"
-        "output/visualization/van_krevelen/unique_molecular_formulas"
-        "output/visualization/van_krevelen/clean_bp_RI"
-        "output/visualization/van_krevelen/avg_MFs_bp"
-        "output/visualization/van_krevelen/avg_MFs_RI"
-        "output/visualization/van_krevelen/rep_MFs"
-        "output/visualization/comparison_plots"
-        "output/visualization/comparison_plots/intensity_weighted_averages"
-        "output/visualization/comparison_plots/normalization_effect"
-        "output/visualization/stacked_plots"
-        "output/visualization/stacked_plots/common_vs_unique_formulas"
-        "output/visualization/stacked_plots/measurement_comparison"
-        "output/visualization/reproducibility"
-        "output/final_export"
-        "output/final_export/data"
-        "output/final_export/plots"
-        "output/final_export/reports"
+        "output/01_data_preparation"
+        "output/02_comparison_analysis"
+        "output/03_visualization"
+        "output/03_visualization/van_krevelen"
+        "output/03_visualization/van_krevelen/SRFA_comparison"
+        "output/03_visualization/van_krevelen/delta_RI_comparison"
+        "output/03_visualization/van_krevelen/unique_molecular_formulas"
+        "output/03_visualization/van_krevelen/clean_bp_RI"
+        "output/03_visualization/van_krevelen/avg_MFs_bp"
+        "output/03_visualization/van_krevelen/avg_MFs_RI"
+        "output/03_visualization/van_krevelen/rep_MFs"
+        "output/03_visualization/comparison_plots"
+        "output/03_visualization/comparison_plots/intensity_weighted_averages"
+        "output/03_visualization/stacked_plots"
+        "output/03_visualization/stacked_plots/common_vs_unique_formulas"
+        "output/03_visualization/stacked_plots/measurement_comparison"
+        "output/03_visualization/reproducibility"
+        "output/04_export_results"
+        "output/04_export_results/data"
+        "output/04_export_results/plots"
+        "output/04_export_results/reports"
     )
     
     for dir in "${directories[@]}"; do
@@ -237,7 +228,7 @@ EXECUTION SUMMARY:
 EOF
 
     # Report status per script based on run results
-    scripts=("1. data_prep.R" "2. comparison_analysis.R" "3. visualization.R" "4. export_results.R")
+    scripts=("01_data_preparation.R" "02_comparison_analysis.R" "03_visualization.R" "04_export_results.R")
     for script in "${scripts[@]}"; do
         base_no_ext="${script%.R}"
         safe_base=$(echo "$base_no_ext" | tr ' /' '__')
@@ -264,18 +255,18 @@ EOF
         echo "" >> "$summary_file"
         echo "Key output directories:" >> "$summary_file"
         echo "- output/logs/: Execution logs for all scripts" >> "$summary_file"
-        echo "- output/data_prep/: Data preparation results" >> "$summary_file"
-        echo "- output/comparison_analysis/: Nanoparticle comparison results" >> "$summary_file"
-        echo "- output/visualization/: All generated plots and figures" >> "$summary_file"
-        echo "- output/final_export/: Complete results package" >> "$summary_file"
+        echo "- output/01_data_preparation/: Data preparation results" >> "$summary_file"
+        echo "- output/02_comparison_analysis/: Nanoparticle comparison results" >> "$summary_file"
+        echo "- output/03_visualization/: All generated plots and figures" >> "$summary_file"
+        echo "- output/04_export_results/: Complete results package" >> "$summary_file"
     fi
     
     echo "" >> "$summary_file"
     echo "NEXT STEPS:" >> "$summary_file"
     echo "===========" >> "$summary_file"
-    echo "1. Review the generated plots in output/visualization/" >> "$summary_file"
-    echo "2. Check the final results in output/final_export/" >> "$summary_file"
-    echo "3. Read the analysis report in output/final_export/reports/" >> "$summary_file"
+    echo "1. Review the generated plots in output/03_visualization/" >> "$summary_file"
+    echo "2. Check the final results in output/04_export_results/" >> "$summary_file"
+    echo "3. Read the analysis report in output/04_export_results/reports/" >> "$summary_file"
     echo "4. Use the exported data for further analysis or publication" >> "$summary_file"
     echo "" >> "$summary_file"
     echo "RUN METADATA:" >> "$summary_file"
@@ -301,7 +292,6 @@ main() {
     check_r
     install_r_packages
     create_directories
-    capture_run_metadata
     check_input_files
     
     echo ""
@@ -313,10 +303,10 @@ main() {
     
     # Run scripts in sequence
     scripts=(
-        "scripts/1. data_prep.R:Data preparation and preprocessing"
-        "scripts/2. comparison_analysis.R:Comparative analysis of nanoparticles"
-        "scripts/3. visualization.R:Generate plots and visualizations"
-        "scripts/4. export_results.R:Export final results and documentation"
+        "scripts/01_data_preparation.R:Data preparation and preprocessing"
+        "scripts/02_comparison_analysis.R:Comparative analysis of nanoparticles"
+        "scripts/03_visualization.R:Generate plots and visualizations"
+        "scripts/04_export_results.R:Export final results and documentation"
     )
     
     failed_scripts=()
@@ -356,7 +346,7 @@ main() {
         print_success "Total execution time: ${hours}h ${minutes}m ${seconds}s"
         echo ""
         print_success "Results are available in the output/ directory"
-        print_success "Check output/final_export/ for the complete results package"
+        print_success "Check output/04_export_results/ for the complete results package"
     else
         print_error "Pipeline completed with errors"
         print_error "Failed scripts: ${failed_scripts[*]}"
@@ -373,7 +363,7 @@ main() {
     echo "For detailed information, see:"
     echo "- README.md: Complete pipeline documentation"
     echo "- output/analysis_completion_summary.txt: Execution summary"
-    echo "- output/final_export/README.md: Results usage guide"
+    echo "- output/04_export_results/README.md: Results usage guide"
     echo "============================================================================="
 }
 

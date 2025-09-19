@@ -56,7 +56,7 @@ Rscript install_r_packages.R
 
 ### R Scripts
 
-#### 1. data_prep.R
+#### 01_data_preparation.R
 - **tidyverse**: Data manipulation and visualization
 - **data.table**: Fast data operations
 - **ggplot2**: Plotting system
@@ -66,18 +66,18 @@ Rscript install_r_packages.R
 - **htmlwidgets**: Interactive plot saving
  
 
-#### 2. comparison_analysis.R
+#### 02_comparison_analysis.R
 - **tidyverse**: Data manipulation and analysis
 - **dplyr**: Data grouping and summarization
 - **readr**: File I/O operations
 
-#### 3. visualization.R
+#### 03_visualization.R
 - **tidyverse**: Data manipulation
 - **ggplot2**: Plotting system
 - **dplyr**: Data processing for plots
 - **readr**: File reading
 
-#### 4. export_results.R
+#### 04_export_results.R
 - **tidyverse**: Data manipulation
 - **ggplot2**: Plotting system
 - **dplyr**: Data processing

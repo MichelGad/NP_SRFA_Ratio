@@ -1,8 +1,8 @@
 # =============================================================================
-# Script: 1. data_prep.R
+# Script: 01_data_preparation.R
 # Purpose: Data preparation and preprocessing for nanoparticle SRFA ratio analysis
 # Author: Michel Gad
-# Date: 2025-09-15
+# Date: 2025-09-19
 # Description: 
 #   - Load pre-processed formulas_avg and formulas_clean datasets
 #   - Apply normalization and magnitude filtering
@@ -12,10 +12,10 @@
 
 # Print script header information
 cat("=============================================================================\n")
-cat("Script: 1. data_prep.R\n")
+cat("Script: 01_data_preparation.R\n")
 cat("Purpose: Data preparation and preprocessing for nanoparticle SRFA ratio analysis\n")
 cat("Author: Michel Gad\n")
-cat("Date: 2025-09-15\n")
+cat("Date: 2025-09-19\n")
 cat("=============================================================================\n\n")
 
 # --- Load Required Libraries ---
@@ -33,8 +33,8 @@ message("Setting up directories...")
 if (!dir.exists("output")) {
   dir.create("output", recursive = TRUE)
 }
-if (!dir.exists("output/data_prep")) {
-  dir.create("output/data_prep", recursive = TRUE)
+if (!dir.exists("output/01_data_preparation")) {
+  dir.create("output/01_data_preparation", recursive = TRUE)
 }
 
 # --- Project Initialization ---
@@ -347,17 +347,17 @@ message("Average intensity values calculated across replicates")
 message("Exporting processed data...")
 
 # Save main processed datasets
-write_csv(formulas.avg.processed, "output/data_prep/formulas_processed.csv")
-write_csv(summary_table, "output/data_prep/summary_statistics.csv")
-write_csv(grouped_formulas, "output/data_prep/grouped_formulas.csv")
-write_csv(reproducibility_threshold_window, "output/data_prep/reproducibility_thresholds.csv")
+write_csv(formulas.avg.processed, "output/01_data_preparation/formulas_processed.csv")
+write_csv(summary_table, "output/01_data_preparation/summary_statistics.csv")
+write_csv(grouped_formulas, "output/01_data_preparation/grouped_formulas.csv")
+write_csv(reproducibility_threshold_window, "output/01_data_preparation/reproducibility_thresholds.csv")
 
 # Save intermediate datasets
-write_csv(formulas.clean, "output/data_prep/formulas_clean.csv")
-write_csv(formulas.avg, "output/data_prep/formulas_averaged.csv")
+write_csv(formulas.clean, "output/01_data_preparation/formulas_clean.csv")
+write_csv(formulas.avg, "output/01_data_preparation/formulas_averaged.csv")
 
 message("Data preparation complete!")
-message("Files saved to output/data_prep/")
+message("Files saved to output/01_data_preparation/")
 message("- formulas_processed.csv: Final processed dataset")
 message("- summary_statistics.csv: Summary statistics by group")
 message("- grouped_formulas.csv: Aggregated formulas across replicates")

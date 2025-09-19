@@ -1,8 +1,8 @@
 ###############################################################################
-# Script: 3. visualization.R
+# Script: 03_visualization.R
 # Purpose: Unified, consistent visualizations for nanoparticle SRFA ratio analysis
 # Author: Michel Gad
-# Date: 2025-09-15
+# Date: 2025-09-19
 # Description: 
 #   - Robust helpers and data loading
 #   - Van Krevelen diagrams (SRFA comparison, ΔRI, unique, clean_bp_RI,
@@ -12,10 +12,10 @@
 ###############################################################################
 
 cat("=============================================================================\n")
-cat("Script: 3. visualization.R\n")
+cat("Script: 03_visualization.R\n")
 cat("Purpose: Unified visualizations for nanoparticle SRFA ratio analysis\n")
 cat("Author: Michel Gad\n")
-cat("Date: 2025-09-15\n")
+cat("Date: 2025-09-19\n")
 cat("=============================================================================\n\n")
 
 # -----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ library(ggrepel)
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
-output_base <- "output/visualization"
+output_base <- "output/03_visualization"
 
 ensure_dir <- function(path) {
   if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
@@ -97,33 +97,33 @@ safe_read_any <- function(paths) {
 message("Loading data for visualization...")
 
 # Mandatory inputs
-formulas_NP <- read_csv("output/comparison_analysis/combined_nanoparticle_data.csv", show_col_types = FALSE)
-STD_SRFA <- read_csv("output/data_prep/formulas_processed.csv", show_col_types = FALSE) %>%
+formulas_NP <- read_csv("output/02_comparison_analysis/combined_nanoparticle_data.csv", show_col_types = FALSE)
+STD_SRFA <- read_csv("output/01_data_preparation/formulas_processed.csv", show_col_types = FALSE) %>%
   filter(str_detect(measurement_name, "STD"))
-IWA_AuNP <- read_csv("output/comparison_analysis/IWA_AuNP.csv", show_col_types = FALSE)
-IWA_P25 <- read_csv("output/comparison_analysis/IWA_P25.csv", show_col_types = FALSE)
-summary_SRFA <- read_csv("output/comparison_analysis/summary_SRFA.csv", show_col_types = FALSE)
-summary_SRFA_measurement <- read_csv("output/comparison_analysis/summary_SRFA_measurement.csv", show_col_types = FALSE)
+IWA_AuNP <- read_csv("output/02_comparison_analysis/IWA_AuNP.csv", show_col_types = FALSE)
+IWA_P25 <- read_csv("output/02_comparison_analysis/IWA_P25.csv", show_col_types = FALSE)
+summary_SRFA <- read_csv("output/02_comparison_analysis/summary_SRFA.csv", show_col_types = FALSE)
+summary_SRFA_measurement <- read_csv("output/02_comparison_analysis/summary_SRFA_measurement.csv", show_col_types = FALSE)
 
 # Optional inputs (multiple candidate paths)
 paths_formulas_avg <- c(
-  "output/comparison_analysis/formulas_avg.csv",
-  "output/data_prep/formulas_avg.csv",
+  "output/02_comparison_analysis/formulas_avg.csv",
+  "output/01_data_preparation/formulas_avg.csv",
   "processed_output/formulas_avg.csv"
 )
 paths_formulas_processed <- c(
-  "output/data_prep/formulas_processed.csv",
-  "output/comparison_analysis/formulas_processed.csv",
+  "output/01_data_preparation/formulas_processed.csv",
+  "output/02_comparison_analysis/formulas_processed.csv",
   "processed_output/formulas_processed.csv"
 )
 paths_formulas_clean <- c(
-  "output/data_prep/formulas_clean.csv",
-  "output/comparison_analysis/formulas_clean.csv",
+  "output/01_data_preparation/formulas_clean.csv",
+  "output/02_comparison_analysis/formulas_clean.csv",
   "processed_output/formulas_clean.csv"
 )
 paths_summary_table <- c(
-  "output/data_prep/summary_statistics.csv",
-  "output/comparison_analysis/summary_statistics.csv",
+  "output/01_data_preparation/summary_statistics.csv",
+  "output/02_comparison_analysis/summary_statistics.csv",
   "processed_output/summary_statistics.csv"
 )
 
@@ -332,8 +332,6 @@ ensure_dir(file.path(output_base, stacked_common_dir))
 custom_x_order_groups <- c("NP-HH", "NP-MM", "NP-LL", "NP-HM", "NP-HL", "NP-MH", "NP-LH")
 
 plot_data_groups <- summary_SRFA %>%
-  filter(!is.na(new_name)) %>%
-  filter(!str_detect(new_name, "BLK")) %>%
   select(new_name, Increased_pct, Decreased_pct, Non_SRFA_pct) %>%
   pivot_longer(cols = -new_name, names_to = "category", values_to = "percentage") %>%
   mutate(
@@ -392,7 +390,6 @@ custom_x_order_meas <- c("AuNP-HH", "P25-HH", "AuNP-MM", "P25-MM",
                    "AuNP-LH", "P25-LH")
 
 plot_data_meas <- summary_SRFA_measurement %>%
-  filter(!str_detect(measurement_name, "BLK")) %>%
   select(measurement_name, Increased_pct, Decreased_pct, Non_SRFA_pct) %>%
   pivot_longer(cols = -measurement_name, names_to = "category", values_to = "percentage") %>%
   mutate(
@@ -434,48 +431,6 @@ filename <- "formula_changes_by_measurement.pdf"
 save_plot(stacked_plot_meas, file.path(stacked_meas_dir, filename), width = 14, height = 7)
 message(paste("- Plot saved to:", file.path(output_base, stacked_meas_dir, filename)))
 
-# -----------------------------------------------------------------------------
-# Section: Normalization effect (before vs after)
-# -----------------------------------------------------------------------------
-message("Creating normalization effect plot (before vs after normalization)...")
-norm_dir <- "comparison_plots/normalization_effect"
-ensure_dir(file.path(output_base, norm_dir))
-
-if (!is.null(formulas_avg) && !is.null(formulas_processed_all) &&
-    all(c("measurement_name", "peak_relint_bp") %in% names(formulas_avg)) &&
-    all(c("measurement_name", "rel_intensity_permille") %in% names(formulas_processed_all))) {
-  plot_data_comparison <- bind_rows(
-    formulas_avg %>% select(measurement_name, Intensity = peak_relint_bp) %>% mutate(Normalization_Type = "Before Processing (Base Peak RI)"),
-    formulas_processed_all %>% select(measurement_name, Intensity = rel_intensity_permille) %>% mutate(Normalization_Type = "After Normalization (RI (‰))")
-  ) %>%
-    mutate(Normalization_Type = factor(Normalization_Type, levels = c("Before Processing (Base Peak RI)", "After Normalization (RI (‰))")),
-           measurement_name = factor(measurement_name))
-
-  if (nrow(plot_data_comparison) > 0) {
-    normalization_effect_plot <- ggplot(plot_data_comparison, aes(x = measurement_name, y = Intensity, fill = Normalization_Type)) +
-      geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-      facet_wrap(~ Normalization_Type, ncol = 1) +
-      labs(title = "Effect of Normalization and Filtering", subtitle = "Y-axis scaled 0-1 for direct comparison",
-           x = "Sample", y = "Normalized Intensity Value",
-           caption = "Both panels use an identical 0-1 scale for direct comparison") +
-      scale_y_continuous(labels = scales::comma, limits = c(0, 1.2)) +
-      theme_bw(base_size = 12) +
-      theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
-            plot.subtitle = element_text(hjust = 0.5),
-            axis.title = element_text(size = 12, face = "bold"),
-            axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-            strip.background = element_rect(fill = "grey90", colour = "black"),
-            strip.text = element_text(face = "bold", size = 11),
-            panel.grid.minor = element_blank(), legend.position = "none")
-
-    filename <- "normalization_effect_0to1_scale.pdf"
-    save_plot(normalization_effect_plot, file.path(norm_dir, filename), width = 10, height = 8)
-  } else {
-    message("  No rows in comparison data — skipping normalization effect plot.")
-  }
-} else {
-  message("  Required inputs for normalization effect plot are missing; skipping plot.")
-}
 
 # -----------------------------------------------------------------------------
 # Section: Reproducibility violins (log10 RIdiff and %RIdiff)
@@ -689,7 +644,7 @@ if (!is.null(formulas_processed_all) && "group" %in% names(formulas_processed_al
 # Footer
 # -----------------------------------------------------------------------------
 message("\nVisualization complete!")
-message("Results saved to output/visualization/")
+message("Results saved to output/03_visualization/")
 message("- van_krevelen/: Van Krevelen diagrams for various comparisons")
 message("- comparison_plots/: Intensity-weighted average comparison plots")
 message("- stacked_plots/: Stacked column plots for formula analysis")

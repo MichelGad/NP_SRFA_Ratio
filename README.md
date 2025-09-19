@@ -1,10 +1,10 @@
-## Unraveling SRFA–Nanoparticle Formula Patterns (NP_SRFA_Ratio)
+## Nanoparticle-SRFA Analysis Pipeline (NP_SRFA_Ratio)
 
 ### 🎯 Introduction
 
 This repository contains a complete, reproducible R-based pipeline for analyzing molecular formula patterns in Suwannee River Fulvic Acid (SRFA) samples and comparing them across gold nanoparticles (AuNP) and P25 TiO₂ nanoparticles. The workflow ingests molecular formula data, performs rigorous preprocessing and group-wise aggregation, computes intensity-weighted averages, identifies common vs. unique formulas, generates publication-ready visualizations (including Van Krevelen diagrams), and exports comprehensive results and summaries.
 
-The pipeline is the exact computational sequence used to produce the outputs in the `output/` directory and the final export package in `output/final_export/`.
+The pipeline is the exact computational sequence used to produce the outputs in the `output/` directory and the final export package in `output/04_export_results/`.
 
 ---
 
@@ -27,10 +27,10 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 
 #### 1) Data Preparation
 
-- Script: `scripts/1. data_prep.R`
+- Script: `scripts/01_data_preparation.R`
 - Purpose: Import, clean, and preprocess molecular formula data; perform QC; aggregate replicates; compute reproducibility and summary statistics.
 - Inputs: CSV files in `input/` (e.g., `formulas_clean.csv`, `formulas_avg.csv`)
-- Outputs (to `output/data_prep/`):
+- Outputs (to `output/01_data_preparation/`):
   - `formulas_clean.csv`
   - `formulas_averaged.csv`
   - `formulas_processed.csv`
@@ -40,10 +40,10 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 
 #### 2) Comparison Analysis
 
-- Script: `scripts/2. comparison_analysis.R`
+- Script: `scripts/02_comparison_analysis.R`
 - Purpose: Build AuNP and P25 datasets, subtract blanks, compute IWAs, identify common vs. unique formulas, and generate comparison summaries.
 - Inputs: Outputs from Data Preparation
-- Outputs (to `output/comparison_analysis/`):
+- Outputs (to `output/02_comparison_analysis/`):
   - `combined_nanoparticle_data.csv`
   - `IWA_AuNP.csv`, `IWA_P25.csv`
   - `common_formulas.csv`, `unique_AuNP_formulas.csv`, `unique_P25_formulas.csv`
@@ -51,10 +51,10 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 
 #### 3) Visualization
 
-- Script: `scripts/3. visualization.R`
+- Script: `scripts/03_visualization.R`
 - Purpose: Create Van Krevelen diagrams, stacked bar patterns, and measurement-comparison plots; export publication-ready figures.
 - Inputs: Outputs from Comparison Analysis
-- Outputs (to `output/visualization/`):
+- Outputs (to `output/03_visualization/`):
   - `van_krevelen/`
     - `SRFA_comparison/`
     - `delta_RI_comparison/`
@@ -65,7 +65,6 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
     - `rep_MFs/`
   - `comparison_plots/`
     - `intensity_weighted_averages/IWA_comparison_AuNP_vs_P25.pdf`
-    - `normalization_effect/normalization_effect_0to1_scale.pdf`
   - `stacked_plots/`
     - `common_vs_unique_formulas/formula_changes_stacked_patterns.pdf`
     - `measurement_comparison/formula_changes_by_measurement.pdf`
@@ -75,12 +74,12 @@ The pipeline is organized into four modular R scripts executed in sequence. Each
 
 #### 4) Export Results
 
-- Script: `scripts/4. export_results.R`
+- Script: `scripts/04_export_results.R`
 - Purpose: Consolidate outputs, create final data package, generate reports and documentation.
 - Inputs: All prior outputs
-- Outputs (to `output/final_export/`):
+- Outputs (to `output/04_export_results/`):
   - `data/` complete tables (processed, grouped, IWAs, summaries, dictionary)
-  - `plots/` visualization folders copied from `output/visualization/` (full tree)
+  - `plots/` visualization folders copied from `output/03_visualization/` (full tree)
   - `reports/analysis_report.txt`
   - `analysis_summary.csv`, `final_summary_statistics.csv`, `README.md`
 
@@ -139,10 +138,10 @@ Rscript install_r_packages.R
 Run scripts individually in order:
 
 ```bash
-Rscript "scripts/1. data_prep.R"
-Rscript "scripts/2. comparison_analysis.R"
-Rscript "scripts/3. visualization.R"
-Rscript "scripts/4. export_results.R"
+Rscript "scripts/01_data_preparation.R"
+Rscript "scripts/02_comparison_analysis.R"
+Rscript "scripts/03_visualization.R"
+Rscript "scripts/04_export_results.R"
 ```
 
 ---
@@ -156,14 +155,14 @@ All key outputs are organized under `output/`. Each run generates a unique log d
 ```
 output/
 ├── analysis_completion_summary.txt
-├── data_prep/
+├── 01_data_preparation/
 │   ├── formulas_averaged.csv
 │   ├── formulas_clean.csv
 │   ├── formulas_processed.csv
 │   ├── grouped_formulas.csv
 │   ├── reproducibility_thresholds.csv
 │   └── summary_statistics.csv
-├── comparison_analysis/
+├── 02_comparison_analysis/
 │   ├── combined_nanoparticle_data.csv
 │   ├── common_formulas.csv
 │   ├── IWA_AuNP.csv
@@ -174,12 +173,10 @@ output/
 │   ├── summary_SRFA_measurement.csv
 │   ├── unique_AuNP_formulas.csv
 │   └── unique_P25_formulas.csv
-├── visualization/
+├── 03_visualization/
 │   ├── comparison_plots/
 │   │   ├── intensity_weighted_averages/
 │   │   │   └── IWA_comparison_AuNP_vs_P25.pdf
-│   │   └── normalization_effect/
-│   │       └── normalization_effect_0to1_scale.pdf
 │   ├── stacked_plots/
 │   │   ├── common_vs_unique_formulas/
 │   │   │   └── formula_changes_stacked_patterns.pdf
@@ -203,7 +200,7 @@ output/
 │       ├── 3.__visualization.log
 │       ├── 4.__export_results.log
 │       └── run_metadata.txt
-└── final_export/
+└── 04_export_results/
     ├── analysis_summary.csv
     ├── data/
     │   ├── combined_nanoparticle_data.csv
@@ -351,10 +348,10 @@ export R_MAX_MEM_SIZE=16G
 
 ```bash
 # Run individual scripts if a step fails
-Rscript "scripts/1. data_prep.R"
-Rscript "scripts/2. comparison_analysis.R"
-Rscript "scripts/3. visualization.R"
-Rscript "scripts/4. export_results.R"
+Rscript "scripts/01_data_preparation.R"
+Rscript "scripts/02_comparison_analysis.R"
+Rscript "scripts/03_visualization.R"
+Rscript "scripts/04_export_results.R"
 
 # Check which outputs were produced
 cat output/analysis_completion_summary.txt 2>/dev/null || true
@@ -364,11 +361,11 @@ cat output/analysis_completion_summary.txt 2>/dev/null || true
 
 ```bash
 # Validate expected files exist after each step
-ls output/data_prep/ | wc -l
-ls output/comparison_analysis/ | wc -l
+ls output/01_data_preparation/ | wc -l
+ls output/02_comparison_analysis/ | wc -l
 
 # Confirm core figures were produced
-test -f output/visualization/stacked_plots/common_vs_unique_formulas/formula_changes_stacked_patterns.pdf && echo OK
+test -f output/03_visualization/stacked_plots/common_vs_unique_formulas/formula_changes_stacked_patterns.pdf && echo OK
 ```
 
 ---
@@ -411,7 +408,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ### 👥 Authors
 
-- Michel Gad — Lead developer
+- Michel Gad
 
 ### 📞 Contact
 

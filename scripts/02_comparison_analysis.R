@@ -1,8 +1,8 @@
 # =============================================================================
-# Script: 2. comparison_analysis.R
+# Script: 02_comparison_analysis.R
 # Purpose: Comparative analysis of AuNP and P25 nanoparticle formulations
 # Author: Michel Gad
-# Date: 2025-09-15
+# Date: 2025-09-19
 # Description: 
 #   - Load processed molecular formula data
 #   - Create separate datasets for each nanoparticle type
@@ -12,10 +12,10 @@
 
 # Print script header information
 cat("=============================================================================\n")
-cat("Script: 2. comparison_analysis.R\n")
+cat("Script: 02_comparison_analysis.R\n")
 cat("Purpose: Comparative analysis of AuNP and P25 nanoparticle formulations\n")
 cat("Author: Michel Gad\n")
-cat("Date: 2025-09-15\n")
+cat("Date: 2025-09-19\n")
 cat("=============================================================================\n\n")
 
 # --- Load Required Libraries ---
@@ -35,15 +35,15 @@ message("Setting up directories...")
 if (!dir.exists("output")) {
   dir.create("output", recursive = TRUE)
 }
-if (!dir.exists("output/comparison_analysis")) {
-  dir.create("output/comparison_analysis", recursive = TRUE)
+if (!dir.exists("output/02_comparison_analysis")) {
+  dir.create("output/02_comparison_analysis", recursive = TRUE)
 }
 
 # --- Load Processed Data ---
 message("Loading processed molecular formula data...")
 
 # Import and clean raw data
-formulas_processed <- read_csv("output/data_prep/formulas_processed.csv", show_col_types = FALSE)
+formulas_processed <- read_csv("output/01_data_preparation/formulas_processed.csv", show_col_types = FALSE)
 
 message(paste("Data loaded and cleaned:"))
 message(paste("- File: formulas_processed.csv"))
@@ -240,6 +240,9 @@ print(summary_common, n = Inf)
 
 # 2. SRFA comparison by ratio group
 summary_SRFA <- formulas_NP %>%
+  filter(!is.na(new_name)) %>%
+  filter(new_name != "NA") %>%
+  filter(!str_detect(new_name, "BLK")) %>%
   group_by(new_name) %>%
   summarise(
     SRFA_match = sum(is_SRFA),
@@ -265,6 +268,10 @@ print(summary_SRFA, n = Inf)
 
 # 3. SRFA comparison by individual measurement
 summary_SRFA_measurement <- formulas_NP %>%
+  filter(!is.na(measurement_name)) %>%
+  filter(measurement_name != "NA") %>%
+  filter(!str_detect(measurement_name, "BLK")) %>%
+  filter(!measurement_name %in% c("BLK_AuNP_1", "BLK_P25_1")) %>%
   group_by(measurement_name) %>%
   summarise(
     SRFA_match = sum(is_SRFA),
@@ -380,25 +387,25 @@ message(paste("- Total intensity range (P25):",
 message("Exporting comparison analysis results...")
 
 # Save summary tables
-write_csv(summary_common, "output/comparison_analysis/summary_common.csv")
-write_csv(summary_SRFA, "output/comparison_analysis/summary_SRFA.csv")
-write_csv(summary_SRFA_measurement, "output/comparison_analysis/summary_SRFA_measurement.csv")
-write_csv(STD_comparison_summary, "output/comparison_analysis/STD_SRFA_vs_measurements_summary.csv")
+write_csv(summary_common, "output/02_comparison_analysis/summary_common.csv")
+write_csv(summary_SRFA, "output/02_comparison_analysis/summary_SRFA.csv")
+write_csv(summary_SRFA_measurement, "output/02_comparison_analysis/summary_SRFA_measurement.csv")
+write_csv(STD_comparison_summary, "output/02_comparison_analysis/STD_SRFA_vs_measurements_summary.csv")
 
 # Save intensity-weighted averages
-write_csv(IWA_AuNP, "output/comparison_analysis/IWA_AuNP.csv")
-write_csv(IWA_P25, "output/comparison_analysis/IWA_P25.csv")
+write_csv(IWA_AuNP, "output/02_comparison_analysis/IWA_AuNP.csv")
+write_csv(IWA_P25, "output/02_comparison_analysis/IWA_P25.csv")
 
 # Save specialized datasets
-write_csv(unique_AuNP, "output/comparison_analysis/unique_AuNP_formulas.csv")
-write_csv(unique_P25, "output/comparison_analysis/unique_P25_formulas.csv")
-write_csv(common_MFs, "output/comparison_analysis/common_formulas.csv")
+write_csv(unique_AuNP, "output/02_comparison_analysis/unique_AuNP_formulas.csv")
+write_csv(unique_P25, "output/02_comparison_analysis/unique_P25_formulas.csv")
+write_csv(common_MFs, "output/02_comparison_analysis/common_formulas.csv")
 
 # Save combined dataset
-write_csv(formulas_NP, "output/comparison_analysis/combined_nanoparticle_data.csv")
+write_csv(formulas_NP, "output/02_comparison_analysis/combined_nanoparticle_data.csv")
 
 message("Comparison analysis complete!")
-message("Results saved to output/comparison_analysis/")
+message("Results saved to output/02_comparison_analysis/")
 message("- summary_common.csv: Common formula summary by ratio group")
 message("- summary_SRFA.csv: SRFA comparison by ratio group")
 message("- summary_SRFA_measurement.csv: SRFA comparison by individual measurement")

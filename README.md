@@ -391,12 +391,12 @@ If you use this pipeline in your research, please cite appropriately and include
 
 ### 🤝 Contributing
 
-Contributions are welcome. You can:
-- Report bugs or issues
-- Suggest features or enhancements
-- Submit pull requests with improvements
+Contributions are welcome to improve this pipeline. Please feel free to:
 
-Please keep changes modular and documented.
+1. Report bugs or issues
+2. Suggest new features
+3. Submit pull requests with improvements
+4. Share your analysis results and insights
 
 ---
 
